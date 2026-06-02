@@ -598,15 +598,22 @@ function renderEditor(){
       <button class="btn bg bsm" id="toggle-names-btn" onclick="toggleNames()">
         ${S.list.showNames?'👁 Nomes ON':'👁 Nomes OFF'}
       </button>
+      <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
       <button class="btn bp bsm" onclick="handleSave()">💾 Salvar</button>
-    `:`<button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>`}
+    `:`
+      <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
+      <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+    `}
   `;
 
   const editorClass=editing?'editor editing-mode':'editor';
   const bannerHtml=editing?'':`
     <div class="view-banner">
       <span>👁 Modo visualização — <strong>${esc(S.list.title)}</strong></span>
-      <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
+        <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+      </div>
     </div>`;
 
   document.getElementById('app').innerHTML=`
