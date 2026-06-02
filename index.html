@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TierForge — Hub</title>
+  <meta name="description" content="Crie e compartilhe tier lists com amigos. Powered by Supabase." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+/* ═══════════════ RESET ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--bgs:#0f1219;--bge:#161b26;--bgh:#1e2535;
+  --b:rgba(255,255,255,.06);--bh:rgba(255,255,255,.13);
+  --t1:#eef0f8;--t2:#8892a8;--t3:#454e65;
+  --acc:#7c6fff;--ag:rgba(124,111,255,.32);--dan:#ff4d6d;--ok:#3de08a;
+  --rs:6px;--rm:12px;--rl:20px;
+  --sh:0 4px 20px rgba(0,0,0,.5);--shl:0 16px 60px rgba(0,0,0,.65);
+  --tr:.18s cubic-bezier(.4,0,.2,1);
+  --sz:82px;--ir:var(--rs);--lw:110px;
+}
+html{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(124,111,255,.10) 0%,transparent 65%),radial-gradient(ellipse 50% 40% at 85% 110%,rgba(61,224,138,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a3048;border-radius:99px}
+/* ═══════════════ HEADER ═══════════════ */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--b);background:rgba(8,11,18,.88);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.logo-ico{width:34px;height:34px;background:linear-gradient(135deg,var(--acc),#b06fff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px var(--ag)}
+.logo-name{font-size:19px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(120deg,#fff 0%,#c4b8ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* ═══════════════ BUTTONS ═══════════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;outline:none;transition:var(--tr);white-space:nowrap;user-select:none;text-decoration:none}
+.bp{background:linear-gradient(135deg,var(--acc),#a78bfa);color:#fff;box-shadow:0 3px 14px var(--ag)}
+.bp:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.bg{background:transparent;color:var(--t2);border:1px solid var(--bh)}
+.bg:hover{background:var(--bge);color:var(--t1);border-color:rgba(255,255,255,.22)}
+.bd{background:rgba(255,77,109,.12);color:var(--dan);border:1px solid rgba(255,77,109,.22)}
+.bd:hover{background:rgba(255,77,109,.22)}
+.bsm{padding:6px 12px;font-size:12px}
+.bic{padding:7px;font-size:14px;min-width:33px;justify-content:center}
+.pills{display:flex;background:var(--bge);border:1px solid var(--b);border-radius:8px;overflow:hidden}
+.pill{padding:7px 13px;font-size:12.5px;font-weight:600;background:transparent;border:none;color:var(--t2);cursor:pointer;font-family:inherit;transition:var(--tr)}
+.pill.on{background:var(--acc);color:#fff}
+.pill:hover:not(.on){background:var(--bgh);color:var(--t1)}
+/* ═══════════════ HUB ═══════════════ */
+.hub-wrap{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:32px 24px 80px}
+.hub-hero{text-align:center;padding:40px 0 36px}
+.hub-hero h2{font-size:40px;font-weight:900;letter-spacing:-1.5px;background:linear-gradient(135deg,#fff 20%,#a78bfa 60%,#7c6fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:10px}
+.hub-hero p{font-size:15px;color:var(--t2);max-width:440px;margin:0 auto 26px}
+.hub-search{display:flex;align-items:center;gap:10px;max-width:400px;margin:0 auto 32px}
+.hub-search input{flex:1;background:var(--bge);border:1px solid var(--bh);border-radius:var(--rs);color:var(--t1);font-family:inherit;font-size:13px;padding:9px 14px;outline:none;transition:border-color var(--tr)}
+.hub-search input:focus{border-color:var(--acc)}
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.hub-card{background:var(--bgs);border:1px solid var(--b);border-radius:var(--rl);overflow:hidden;transition:var(--tr);position:relative;display:flex;flex-direction:column}
+.hub-card:hover{border-color:rgba(255,255,255,.18);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.hub-strip{display:flex;height:6px}
+.hub-strip span{flex:1}
+.hub-body{padding:16px;flex:1;display:flex;flex-direction:column}
+.hub-title{font-size:15px;font-weight:800;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hub-desc{font-size:12px;color:var(--t2);margin-bottom:12px;min-height:16px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hub-meta{font-size:11px;color:var(--t3);margin-bottom:12px;display:flex;gap:10px}
+.hub-btns{display:flex;gap:6px;margin-top:auto}
+.hub-btns .btn{flex:1;justify-content:center;font-size:12px;padding:7px 10px}
+.hub-empty{text-align:center;padding:60px 20px;color:var(--t3)}
+.hub-empty .ei{font-size:48px;margin-bottom:12px;opacity:.4}
+/* ═══════════════ EDITOR ═══════════════ */
+.editor{position:relative;z-index:1;display:flex;flex-direction:column;min-height:calc(100vh - 61px)}
+.ed-tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--b);background:rgba(15,18,25,.88);backdrop-filter:blur(8px);position:sticky;top:61px;z-index:100}
+.ed-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;color:var(--t1)}
+.ed-sep{width:1px;height:20px;background:var(--b);flex-shrink:0}
+.save-st{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.save-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);transition:background var(--tr)}
+.save-dot.dirty{background:#f59e0b;animation:blink 1.2s infinite}
+.save-dot.saved{background:var(--ok)}
+.save-dot.saving{background:var(--acc);animation:blink .6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.view-banner{background:rgba(124,111,255,.10);border-bottom:1px solid rgba(124,111,255,.25);padding:9px 18px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--t2);gap:10px;position:sticky;top:61px;z-index:99}
+.ed-split{display:grid;grid-template-columns:1fr 280px;align-items:start;flex:1}
+/* ═══════════════ BOARD COL ═══════════════ */
+.board-col{padding:16px 18px 40px;border-right:1px solid var(--b);min-height:100%}
+.board-tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.board-lbl{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--t3)}
+.sp{flex:1}
+#tier-board{border:1px solid var(--b);border-radius:var(--rl);overflow:hidden;background:var(--bgs);box-shadow:var(--sh)}
+/* ═══════════════ TIER ROW ═══════════════ */
+.tier-row{display:flex;align-items:stretch;min-height:98px;border-bottom:1px solid var(--b);position:relative;transition:var(--tr)}
+.tier-row:last-child{border-bottom:none}
+.tier-row.dov .tier-dz{background:rgba(124,111,255,.08);outline:2px dashed rgba(124,111,255,.5);outline-offset:-4px}
+.tier-label{width:var(--lw);min-width:var(--lw);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;letter-spacing:-.5px;user-select:none;position:relative;flex-direction:column;gap:2px;transition:filter var(--tr),width var(--tr),min-width var(--tr);flex-shrink:0}
+.tier-label::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13) 0%,transparent 60%);pointer-events:none}
+.tier-label-text{word-break:break-word;text-align:center;padding:0 14px;line-height:1.1;z-index:1}
+/* Resize handle */
+.lbl-handle{position:absolute;right:0;top:0;bottom:0;width:7px;cursor:col-resize;z-index:10;background:transparent;transition:background var(--tr);display:none}
+.editing-mode .lbl-handle{display:block}
+.lbl-handle:hover,.lbl-handle.active{background:rgba(124,111,255,.55)}
+/* Tier actions */
+.tier-acts{position:absolute;top:4px;right:10px;display:none;gap:3px;z-index:5}
+.editing-mode .tier-row:hover .tier-acts{display:flex}
+.tier-mini{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);color:rgba(255,255,255,.75);transition:var(--tr);font-family:inherit}
+.tier-mini:hover{background:rgba(0,0,0,.7);color:#fff}
+.tier-mini.del:hover{background:rgba(255,77,109,.5)}
+/* Drop zone */
+.tier-dz{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:5px;padding:8px 10px;min-height:98px;border-left:1px solid var(--b);transition:background var(--tr),outline var(--tr);position:relative}
+.tier-dz-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--t3);pointer-events:none;opacity:0;transition:opacity var(--tr)}
+.tier-dz:not(:has(.tier-item)) .tier-dz-hint{opacity:1}
+/* ═══════════════ ITEMS ═══════════════ */
+.tier-item{width:var(--sz);height:var(--sz);border-radius:var(--ir);overflow:hidden;position:relative;flex-shrink:0;transition:transform var(--tr),box-shadow var(--tr),border-radius var(--tr);border:2px solid transparent}
+.editing-mode .tier-item{cursor:grab}
+.editing-mode .tier-item:hover{transform:scale(1.08) translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.7);border-color:rgba(255,255,255,.25);z-index:20}
+.editing-mode .tier-item.dragging{opacity:.25;transform:scale(.92)}
+.tier-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+/* item overlay (delete + edit name) */
+.item-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 55%);opacity:0;transition:opacity var(--tr);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 3px 4px;gap:2px}
+.editing-mode .tier-item:hover .item-ov{opacity:1}
+.item-del{background:var(--dan);border:none;color:#fff;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit}
+.item-edit-name{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit}
+.item-edit-name:hover{background:rgba(255,255,255,.25)}
+/* item name label */
+.item-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.88),transparent);color:#fff;font-size:8.5px;font-weight:700;padding:10px 3px 3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none;pointer-events:none;line-height:1.2}
+body.show-names .item-name{display:block}
+/* round mode */
+body.round-items{--ir:50%}
+body.round-items .editing-mode .tier-item:hover{box-shadow:0 12px 30px rgba(0,0,0,.7),0 0 0 3px rgba(255,255,255,.18)}
+/* drop placeholder */
+.drop-ph{width:var(--sz);height:var(--sz);border-radius:var(--ir);border:2px dashed var(--acc);background:rgba(124,111,255,.1);flex-shrink:0;animation:ph .9s infinite}
+@keyframes ph{0%,100%{border-color:rgba(124,111,255,.35)}50%{border-color:var(--acc)}}
+/* ═══════════════ POOL PANEL ═══════════════ */
+.pool-col{position:sticky;top:113px;height:calc(100vh - 113px);display:flex;flex-direction:column;overflow:hidden}
+.pool-col.view-mode{top:100px;height:calc(100vh - 100px)}
+.pool-hdr{padding:12px 14px 10px;border-bottom:1px solid var(--b);background:var(--bgs)}
+.pool-hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.pool-ttl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--t2);display:flex;align-items:center;gap:7px}
+.pool-badge{background:var(--bgh);color:var(--t3);border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700}
+.upload-mini{border:1.5px dashed var(--bh);border-radius:var(--rm);padding:10px;text-align:center;cursor:pointer;transition:var(--tr);background:var(--bge);position:relative;overflow:hidden}
+.upload-mini:hover,.upload-mini.dov{border-color:var(--acc);background:rgba(124,111,255,.07)}
+.upload-mini input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-mini-icon{font-size:20px;display:block;margin-bottom:2px}
+.upload-mini p{font-size:11px;color:var(--t2);font-weight:500}
+.upload-mini strong{color:var(--acc)}
+.pool-grid-wrap{flex:1;overflow-y:auto;padding:10px}
+#pool-grid{display:flex;flex-wrap:wrap;gap:5px;min-height:60px;padding:4px;border-radius:var(--rm);transition:background var(--tr)}
+#pool-grid.dov{background:rgba(124,111,255,.07)}
+.pool-empty{width:100%;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--t3);font-size:12px;pointer-events:none}
+.pool-footer{padding:8px 12px;border-top:1px solid var(--b);background:var(--bgs);display:flex;gap:6px}
+.pool-footer .btn{flex:1;justify-content:center;font-size:11.5px;padding:7px}
+/* uploading spinner inside pool */
+.upload-spinner{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--b);border-top-color:var(--acc);animation:spin .7s linear infinite;margin:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ═══════════════ MODALS ═══════════════ */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.74);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .22s}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--bge);border:1px solid var(--bh);border-radius:var(--rl);padding:26px;width:100%;max-width:500px;box-shadow:var(--shl);transform:translateY(18px) scale(.96);transition:transform .26s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto}
+.ov.open .modal{transform:none}
+.modal-sm{max-width:360px}
+.modal h2{font-size:17px;font-weight:800;margin-bottom:18px}
+.fg{margin-bottom:14px}
+.fg label,.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--t2);margin-bottom:6px}
+.fi{width:100%;background:var(--bgs);border:1px solid var(--bh);border-radius:var(--rs);color:var(--t1);font-family:inherit;font-size:13.5px;padding:9px 13px;outline:none;transition:border-color var(--tr)}
+.fi:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--ag)}
+textarea.fi{resize:vertical;min-height:64px}
+.ma{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+/* Template picker */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tmpl-card{border:2px solid var(--bh);border-radius:var(--rm);padding:14px 10px;cursor:pointer;text-align:center;transition:var(--tr)}
+.tmpl-card.on{border-color:var(--acc);background:rgba(124,111,255,.1)}
+.tmpl-card:hover:not(.on){border-color:rgba(255,255,255,.22);background:var(--bgh)}
+.tmpl-prev{display:flex;height:7px;border-radius:3px;overflow:hidden;margin-bottom:10px;gap:2px}
+.tmpl-prev span{flex:1;border-radius:2px}
+.tmpl-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.tmpl-desc{font-size:11px;color:var(--t2);line-height:1.4}
+/* Rarity grid */
+.rarity-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.rarity-card{border-radius:10px;padding:8px 5px;text-align:center;cursor:pointer;border:2px solid transparent;transition:var(--tr);position:relative;overflow:hidden}
+.rarity-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,transparent 55%);pointer-events:none}
+.rarity-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.rarity-card.on{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 6px 20px rgba(0,0,0,.5);transform:scale(1.05)}
+.rarity-gem{font-size:15px;display:block;margin-bottom:2px}
+.rarity-name{font-size:9.5px;font-weight:800;text-shadow:0 1px 4px rgba(0,0,0,.6);line-height:1.2}
+.cc-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.cc-row input[type=color]{width:36px;height:28px;border:1px solid var(--bh);border-radius:var(--rs);background:var(--bgs);cursor:pointer;padding:2px}
+.cc-row span{font-size:12px;color:var(--t2)}
+/* Loading */
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--b);border-top-color:var(--acc);animation:spin .7s linear infinite;margin:50px auto}
+.loading-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
+.loading-wrap p{color:var(--t2);font-size:13px;margin-top:12px}
+/* Name inline edit */
+.name-inline-input{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.9);border:none;border-top:1px solid var(--acc);color:#fff;font-family:inherit;font-size:9px;font-weight:700;padding:3px;text-align:center;outline:none;z-index:30}
+/* Toasts */
+#toasts{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bge);border:1px solid var(--bh);border-radius:var(--rs);padding:10px 16px;font-size:13px;font-weight:500;color:var(--t1);box-shadow:var(--sh);display:flex;align-items:center;gap:9px;animation:tin .28s ease,tout .35s ease 2.65s forwards;max-width:280px}
+.toast.ok{border-left:3px solid var(--ok)}
+.toast.err{border-left:3px solid var(--dan)}
+.toast.inf{border-left:3px solid var(--acc)}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}}
+@keyframes tout{to{opacity:0;transform:translateY(-8px)}}
+/* Responsive */
+@media(max-width:720px){.ed-split{grid-template-columns:1fr}.pool-col{position:static;height:auto}.board-col{border-right:none;border-bottom:1px solid var(--b)}}
+  </style>
+</head>
+<body>
+<header class="hdr">
+  <div class="logo" onclick="goHub()">
+    <div class="logo-ico">🏆</div>
+    <span class="logo-name">TierForge</span>
+  </div>
+  <div id="hdr-right"></div>
+</header>
+<div id="app"></div>
+<div id="modals"></div>
+<div id="toasts"></div>
+
+<script>
+// ════════════════════════════════════════════
+// CONFIG & SUPABASE
+// ════════════════════════════════════════════
+const SUPABASE_URL = 'https://pgwubnnqxljvporinadg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_igL_WyTifxarsG17LmG_RQ_BG6wQrki';
+const sb  = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BKT = 'tierforge';
+
+// ════════════════════════════════════════════
+// DATA: RARITIES
+// ════════════════════════════════════════════
+const RARITIES = [
+  {id:'common',    name:'Comum',       gem:'⬜',bg:'linear-gradient(135deg,#6b7280,#9ca3af)',solid:'#7b8494'},
+  {id:'uncommon',  name:'Incomum',     gem:'🟩',bg:'linear-gradient(135deg,#16a34a,#4ade80)',solid:'#22c55e'},
+  {id:'rare',      name:'Raro',        gem:'🔷',bg:'linear-gradient(135deg,#1d4ed8,#60a5fa)',solid:'#3b82f6'},
+  {id:'epic',      name:'Épico',       gem:'🟣',bg:'linear-gradient(135deg,#7e22ce,#c084fc)',solid:'#a855f7'},
+  {id:'legendary', name:'Lendário',    gem:'🟠',bg:'linear-gradient(135deg,#b45309,#fbbf24)',solid:'#f59e0b'},
+  {id:'mythic',    name:'Mítico',      gem:'🔴',bg:'linear-gradient(135deg,#991b1b,#f87171)',solid:'#ef4444'},
+  {id:'exotic',    name:'Exótico',     gem:'🩵',bg:'linear-gradient(135deg,#0891b2,#06b6d4,#a5f3fc)',solid:'#06b6d4'},
+  {id:'divine',    name:'Divino',      gem:'✨',bg:'linear-gradient(135deg,#b45309,#fde047,#fff,#fde047,#b45309)',solid:'#facc15'},
+  {id:'ancient',   name:'Ancestral',   gem:'🟤',bg:'linear-gradient(135deg,#451a03,#92400e,#d97706)',solid:'#b45309'},
+  {id:'cosmic',    name:'Cósmico',     gem:'🌌',bg:'linear-gradient(135deg,#0f172a,#6366f1,#a855f7,#ec4899)',solid:'#8b5cf6'},
+  {id:'eternal',   name:'Eterno',      gem:'🤍',bg:'linear-gradient(135deg,#e2e8f0,#f8fafc,#cbd5e1)',solid:'#e2e8f0'},
+  {id:'cursed',    name:'Amaldiçoado', gem:'💀',bg:'linear-gradient(135deg,#111827,#374151,#6b7280)',solid:'#374151'},
+];
+
+// ════════════════════════════════════════════
+// DATA: TEMPLATES
+// ════════════════════════════════════════════
+const TEMPLATES = {
+  game:{
+    name:'Jogos Online',desc:'Raridades estilo Fortnite, Digimon, MMORPGs',
+    prev:['#ef4444','#f59e0b','#a855f7','#3b82f6','#22c55e','#7b8494'],
+    tiers:[
+      {label:'S',rarityId:'divine'},   {label:'A',rarityId:'mythic'},
+      {label:'B',rarityId:'legendary'},{label:'C',rarityId:'epic'},
+      {label:'D',rarityId:'rare'},     {label:'E',rarityId:'uncommon'},
+      {label:'F',rarityId:'common'},
+    ]
+  },
+  classic:{
+    name:'Tier Clássico',desc:'Cores tradicionais S/A/B/C/D estilo TierMaker',
+    prev:['#ff4444','#ff8800','#ffdd00','#44bb00','#4488ff','#8855ff','#888'],
+    tiers:[
+      {label:'S',rarityId:'custom',solid:'#ff4444',bg:'linear-gradient(135deg,#cc0000,#ff4444)'},
+      {label:'A',rarityId:'custom',solid:'#ff8800',bg:'linear-gradient(135deg,#cc6600,#ff9933)'},
+      {label:'B',rarityId:'custom',solid:'#ddbb00',bg:'linear-gradient(135deg,#aa8800,#ffdd00)'},
+      {label:'C',rarityId:'custom',solid:'#44bb00',bg:'linear-gradient(135deg,#2d8000,#55dd00)'},
+      {label:'D',rarityId:'custom',solid:'#4488ff',bg:'linear-gradient(135deg,#2255cc,#6699ff)'},
+      {label:'E',rarityId:'custom',solid:'#8855ff',bg:'linear-gradient(135deg,#5522cc,#aa77ff)'},
+      {label:'F',rarityId:'custom',solid:'#888888',bg:'linear-gradient(135deg,#555,#999)'},
+    ]
+  }
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+const S = {
+  view:'loading', lists:[],
+  isNew:false, listId:null,
+  list:null, tiers:[], items:[],
+  editing:false, dirty:false, saving:false,
+  pwHash:null,
+  labelW:110, selRarity:'rare',
+  editingTierId:null,
+  saveTimer:null,
+};
+
+// ════════════════════════════════════════════
+// CRYPTO
+// ════════════════════════════════════════════
+async function hashPass(pw){
+  const input = 'tf:' + pw;
+  // crypto.subtle requires secure context (HTTPS or localhost)
+  // Falls back to a deterministic hash when running via file://
+  if (window.isSecureContext && window.crypto?.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  // Fallback: FNV-1a 64-bit style (works on file://)
+  let h1=0x811c9dc5, h2=0x811c9dc5;
+  for(let i=0;i<input.length;i++){
+    const c=input.charCodeAt(i);
+    h1^=c; h1=(h1*0x01000193)>>>0;
+    h2^=(c+i); h2=(h2*0x01000193+1)>>>0;
+  }
+  return 'fb_'+h1.toString(16).padStart(8,'0')+h2.toString(16).padStart(8,'0')+'_'+input.length;
+}
+
+// ════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════
+function uid(){ return Math.random().toString(36).slice(2,9)+Date.now().toString(36); }
+function esc(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function parseFileName(n){ return n.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ').trim(); }
+function getRarity(id){ return RARITIES.find(r=>r.id===id)||RARITIES[0]; }
+function getLuminance(hex){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return(0.299*r+0.587*g+0.114*b)/255; }
+function textFor(hex){ return getLuminance(hex)>0.55?'#111':'#fff'; }
+function tierBg(t){ if(t.bg)return t.bg; const r=getRarity(t.rarityId); return r.bg; }
+function tierSolid(t){ if(t.solid)return t.solid; return getRarity(t.rarityId).solid; }
+function toast(msg,type='inf'){
+  const icons={ok:'✅',err:'❌',inf:'ℹ️'};
+  const el=document.createElement('div'); el.className=`toast ${type}`;
+  el.innerHTML=`<span>${icons[type]}</span><span>${esc(msg)}</span>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+function markDirty(){ S.dirty=true; updateSaveStatus(); scheduleSave(); }
+function updateSaveStatus(){
+  const dot=document.getElementById('save-dot');
+  const txt=document.getElementById('save-txt');
+  if(!dot||!txt)return;
+  if(S.saving){ dot.className='save-dot saving'; txt.textContent='Salvando…'; }
+  else if(S.dirty){ dot.className='save-dot dirty'; txt.textContent='Não salvo'; }
+  else{ dot.className='save-dot saved'; txt.textContent='Salvo'; }
+}
+function scheduleSave(){
+  if(!S.editing||S.isNew)return;
+  clearTimeout(S.saveTimer);
+  S.saveTimer=setTimeout(()=>{ if(S.dirty&&!S.saving)doSave(); },3000);
+}
+
+// Session auth
+function rememberAuth(id,hash){ sessionStorage.setItem('tf_auth_'+id,hash); }
+function sessionAuth(id){ return sessionStorage.getItem('tf_auth_'+id); }
+
+// Apply label width
+function applyLabelW(w){
+  S.labelW=w;
+  document.documentElement.style.setProperty('--lw',w+'px');
+}
+
+// ════════════════════════════════════════════
+// ROUTER
+// ════════════════════════════════════════════
+function navigate(path){ location.hash='#'+path; }
+function goHub(){ navigate('/'); }
+
+function handleRoute(){
+  const hash=location.hash.slice(1)||'/';
+  if(hash==='/'||hash==='')return showHub();
+  const m=hash.match(/^\/list\/([^/]+)$/);
+  // 'new' is a transient state managed in memory — never load from DB
+  if(m && m[1]!=='new')return openList(m[1]);
+  // If hash is /list/new but editor isn't showing a new list, go hub
+  if(m && m[1]==='new' && !S.isNew)return showHub();
+}
+window.addEventListener('hashchange',handleRoute);
+
+// ════════════════════════════════════════════
+// HUB VIEW
+// ════════════════════════════════════════════
+async function showHub(){
+  S.view='hub';
+  document.getElementById('hdr-right').innerHTML=`
+    <button class="btn bp" onclick="showCreateModal()">＋ Nova Tier List</button>`;
+  document.getElementById('app').innerHTML=`<div class="loading-wrap"><div class="spinner"></div><p>Carregando tier lists…</p></div>`;
+  try{
+    const {data,error}=await sb.from('tier_lists').select('*').order('created_at',{ascending:false}).limit(100);
+    if(error)throw error;
+    S.lists=data||[];
+    renderHub();
+  }catch(e){
+    document.getElementById('app').innerHTML=`<div class="hub-wrap"><div class="hub-empty"><div class="ei">⚠️</div><p>Erro ao carregar: ${esc(e.message)}</p></div></div>`;
+  }
+}
+
+function renderHub(){
+  let q='';
+  const filtered=q?S.lists.filter(l=>l.title.toLowerCase().includes(q)):S.lists;
+  const cards=filtered.length?filtered.map(l=>hubCard(l)).join(''):`<div class="hub-empty"><div class="ei">📋</div><p>Nenhuma tier list ainda.<br>Seja o primeiro!</p></div>`;
+  document.getElementById('app').innerHTML=`
+  <div class="hub-wrap">
+    <div class="hub-hero">
+      <h2>🏆 TierForge Hub</h2>
+      <p>Crie, compartilhe e compare tier lists com seus amigos</p>
+      <button class="btn bp" onclick="showCreateModal()" style="font-size:15px;padding:12px 28px">＋ Criar Nova Tier List</button>
+    </div>
+    <div class="hub-grid" id="hub-grid">${cards}</div>
+  </div>`;
+}
+
+function hubCard(list){
+  // Build color strip from template
+  const strip=hubStrip(list);
+  const date=new Date(list.created_at).toLocaleDateString('pt-BR');
+  return`<div class="hub-card">
+    <div class="hub-strip">${strip}</div>
+    <div class="hub-body">
+      <div class="hub-title">${esc(list.title)}</div>
+      <div class="hub-desc">${esc(list.description||'Sem descrição')}</div>
+      <div class="hub-meta"><span>📅 ${date}</span></div>
+      <div class="hub-btns">
+        <button class="btn bg bsm" onclick="openList('${list.id}')">👁 Visualizar</button>
+        <button class="btn bp bsm" onclick="promptEdit('${list.id}')">✏️ Editar</button>
+        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar">🗑</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function hubStrip(list){
+  // Just return colors array – will be rendered in JS after tiers are loaded
+  // For now use a generic placeholder
+  return `<span style="background:var(--acc)"></span>`;
+}
+
+// Override hubCard with async strip loading
+function hubCard(list){
+  const date=new Date(list.created_at).toLocaleDateString('pt-BR');
+  const id='strip_'+list.id.replace(/-/g,'');
+  // Load strip async
+  setTimeout(async()=>{
+    try{
+      const {data}=await sb.from('tiers').select('solid_color,bg_gradient,position').eq('tier_list_id',list.id).order('position').limit(10);
+      const el=document.getElementById(id);
+      if(!el||!data)return;
+      el.innerHTML=(data).map(t=>`<span style="background:${t.bg_gradient||t.solid_color||'#7b8494'}"></span>`).join('');
+    }catch{}
+  },0);
+  return`<div class="hub-card">
+    <div class="hub-strip" id="${id}"><span style="background:var(--acc)"></span></div>
+    <div class="hub-body">
+      <div class="hub-title">${esc(list.title)}</div>
+      <div class="hub-desc">${esc(list.description||'Sem descrição')}</div>
+      <div class="hub-meta"><span>📅 ${date}</span></div>
+      <div class="hub-btns">
+        <button class="btn bg bsm" onclick="openList('${list.id}')">👁 Visualizar</button>
+        <button class="btn bp bsm" onclick="promptEdit('${list.id}')">✏️ Editar</button>
+        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar">🗑</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+// OPEN / EDIT LIST
+// ════════════════════════════════════════════
+async function openList(id, editMode=false){
+  S.view='editor';
+  S.isNew=false;
+  S.listId=id;
+  S.editing=editMode;
+  S.dirty=false;
+  S.saving=false;
+  S.pwHash=null;
+
+  document.getElementById('app').innerHTML=`<div class="loading-wrap"><div class="spinner"></div><p>Carregando…</p></div>`;
+  document.getElementById('hdr-right').innerHTML='';
+
+  try{
+    const [listRes,tiersRes,itemsRes]=await Promise.all([
+      sb.from('tier_lists').select('*').eq('id',id).single(),
+      sb.from('tiers').select('*').eq('tier_list_id',id).order('position'),
+      sb.from('items').select('*').eq('tier_list_id',id).order('position'),
+    ]);
+    if(listRes.error)throw new Error('Tier list não encontrada');
+    const list=listRes.data;
+    S.list={
+      title:list.title, description:list.description,
+      template:list.template, showNames:list.show_item_names,
+      shape:list.item_shape, labelWidth:list.label_width||110,
+    };
+    S.pwHash=list.password_hash;
+    S.tiers=(tiersRes.data||[]).map(t=>({
+      id:t.id, label:t.label, rarityId:t.rarity_id,
+      bg:t.bg_gradient, solid:t.solid_color, position:t.position,
+    }));
+    S.items=(itemsRes.data||[]).map(i=>({
+      id:i.id, tierId:i.tier_id, name:i.name,
+      url:i.image_url, path:i.storage_path, position:i.position,
+    }));
+
+    applyLabelW(S.list.labelWidth);
+    if(S.list.showNames) document.body.classList.add('show-names');
+    else document.body.classList.remove('show-names');
+    if(S.list.shape==='round') document.body.classList.add('round-items');
+    else document.body.classList.remove('round-items');
+
+    renderEditor();
+  }catch(e){
+    document.getElementById('app').innerHTML=`<div class="hub-wrap"><div class="hub-empty"><div class="ei">⚠️</div><p>Erro: ${esc(e.message)}</p><br><button class="btn bp" onclick="goHub()">← Voltar</button></div></div>`;
+  }
+}
+
+async function promptEdit(listId){
+  // Check session first — if already authed, open directly
+  const list=S.lists.find(l=>l.id===listId);
+  const storedHash=list?.password_hash;
+  const sessionH=sessionAuth(listId);
+  if(storedHash&&sessionH===storedHash){
+    // Use replaceState to avoid triggering hashchange → double load
+    history.replaceState(null,'','#/list/'+listId);
+    S.editing=true;
+    await openList(listId,true);
+    return;
+  }
+  showModal('modal-pw');
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-error').textContent='';
+  setTimeout(()=>document.getElementById('pw-input').focus(),100);
+  document.getElementById('pw-confirm-btn').onclick=async()=>{
+    const pw=document.getElementById('pw-input').value;
+    if(!pw){document.getElementById('pw-error').textContent='Digite a senha.';return;}
+    const h=await hashPass(pw);
+    if(!storedHash||h===storedHash){
+      rememberAuth(listId,h);
+      closeModal('modal-pw');
+      history.replaceState(null,'','#/list/'+listId);
+      S.editing=true;
+      await openList(listId,true);
+    }else{
+      document.getElementById('pw-error').textContent='Senha incorreta.';
+    }
+  };
+}
+
+async function promptDelete(listId){
+  const list=S.lists.find(l=>l.id===listId);
+  if(!list)return;
+  showModal('modal-pw');
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-error').textContent='Digite a senha para deletar "'+esc(list.title)+'"';
+  setTimeout(()=>document.getElementById('pw-input').focus(),100);
+  document.getElementById('pw-confirm-btn').onclick=async()=>{
+    const pw=document.getElementById('pw-input').value;
+    if(!pw){document.getElementById('pw-error').textContent='Digite a senha.';return;}
+    const h=await hashPass(pw);
+    if(h===list.password_hash){
+      closeModal('modal-pw');
+      await deleteList(listId);
+    }else{
+      document.getElementById('pw-error').textContent='Senha incorreta.';
+    }
+  };
+}
+
+async function deleteList(id){
+  try{
+    // Delete storage files
+    const {data:itemData}=await sb.from('items').select('storage_path').eq('tier_list_id',id);
+    const paths=(itemData||[]).map(i=>i.storage_path).filter(Boolean);
+    if(paths.length) await sb.storage.from(BKT).remove(paths);
+    // Delete record (cascade handles tiers+items)
+    await sb.from('tier_lists').delete().eq('id',id);
+    toast('Tier list deletada','ok');
+    S.lists=S.lists.filter(l=>l.id!==id);
+    renderHub();
+  }catch(e){ toast('Erro ao deletar: '+e.message,'err'); }
+}
+
+// ════════════════════════════════════════════
+// EDITOR RENDER
+// ════════════════════════════════════════════
+function renderEditor(){
+  const editing=S.editing;
+  const shapeLabel=document.body.classList.contains('round-items')?'on':'';
+
+  document.getElementById('hdr-right').innerHTML=`
+    <button class="btn bg bsm" onclick="goHub()">← Hub</button>
+    ${editing?`
+      <div class="save-st"><div class="save-dot" id="save-dot"></div><span id="save-txt">Carregado</span></div>
+      <div class="pills">
+        <button class="pill ${shapeLabel?'':'on'}" data-sh="square" onclick="toggleShape('square',this)">⬛</button>
+        <button class="pill ${shapeLabel?'on':''}" data-sh="round" onclick="toggleShape('round',this)">🔮</button>
+      </div>
+      <button class="btn bg bsm" id="toggle-names-btn" onclick="toggleNames()">
+        ${S.list.showNames?'👁 Nomes ON':'👁 Nomes OFF'}
+      </button>
+      <button class="btn bp bsm" onclick="handleSave()">💾 Salvar</button>
+    `:`<button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>`}
+  `;
+
+  const editorClass=editing?'editor editing-mode':'editor';
+  const bannerHtml=editing?'':`
+    <div class="view-banner">
+      <span>👁 Modo visualização — <strong>${esc(S.list.title)}</strong></span>
+      <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+    </div>`;
+
+  document.getElementById('app').innerHTML=`
+  <div class="${editorClass}" id="editor-root">
+    ${editing?`
+    <div class="ed-tb">
+      <span class="ed-title">${esc(S.list.title)}</span>
+      <div class="ed-sep"></div>
+      <button class="btn bg bsm" onclick="openTierModal()">＋ Tier</button>
+      <button class="btn bg bsm" onclick="resetTiers()">↺ Padrão</button>
+      <div class="sp"></div>
+      <button class="btn bd bsm" onclick="returnAllToPool()">↩ Retornar tudo</button>
+    </div>`:''}
+    ${bannerHtml}
+    <div class="ed-split">
+      <div class="board-col">
+        <div id="tier-board"></div>
+      </div>
+      <div class="pool-col ${editing?'':'view-mode'}">
+        <div class="pool-hdr">
+          <div class="pool-hdr-row">
+            <div class="pool-ttl">📦 Pool <span class="pool-badge" id="pool-cnt">0</span></div>
+            ${editing?`<button class="btn bd bsm bic" onclick="clearPool()" title="Limpar">🗑</button>`:''}
+          </div>
+          ${editing?`
+          <div class="upload-mini" id="upload-zone">
+            <input type="file" id="file-input" multiple accept="image/*"/>
+            <span class="upload-mini-icon">🖼️</span>
+            <p><strong>Clique</strong> ou arraste imagens</p>
+          </div>`:''}
+        </div>
+        <div class="pool-grid-wrap">
+          <div id="pool-grid">
+            <div class="pool-empty" id="pool-empty"><span>📂</span><span>Sem imagens no pool</span></div>
+          </div>
+        </div>
+        ${editing?`<div class="pool-footer">
+          <button class="btn bg bsm" onclick="returnAllToPool()">↩ Retornar tudo</button>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+
+  renderBoard();
+  renderPool();
+  if(editing) initInteractions();
+  updateSaveStatus();
+}
+
+// ════════════════════════════════════════════
+// BOARD
+// ════════════════════════════════════════════
+function renderBoard(){
+  const board=document.getElementById('tier-board');
+  if(!board)return;
+  board.innerHTML='';
+  if(!S.tiers.length){
+    board.innerHTML=`<div style="padding:30px;text-align:center;color:var(--t3);font-size:13px">${S.editing?'Adicione uma tier com o botão acima.':'Nenhuma tier nesta lista.'}</div>`;
+    return;
+  }
+  S.tiers.forEach(t=>board.appendChild(buildRow(t)));
+}
+
+function buildRow(tier){
+  const items=S.items.filter(i=>i.tierId===tier.id);
+  const bg=tierBg(tier);
+  const solid=tierSolid(tier);
+  const tc=textFor(solid);
+
+  const row=document.createElement('div');
+  row.className='tier-row';
+  row.dataset.tid=tier.id;
+
+  // Label
+  const lbl=document.createElement('div');
+  lbl.className='tier-label';
+  lbl.style.background=bg; lbl.style.color=tc;
+  lbl.innerHTML=`
+    <span class="tier-label-text">${esc(tier.label)}</span>
+    <div class="tier-acts">
+      <button class="tier-mini" data-a="up" title="Subir">▲</button>
+      <button class="tier-mini" data-a="down" title="Descer">▼</button>
+      <button class="tier-mini" data-a="edit" title="Editar">✏️</button>
+      <button class="tier-mini del" data-a="del" title="Remover">✕</button>
+    </div>
+    <div class="lbl-handle" title="Arrastar para redimensionar"></div>`;
+
+  lbl.addEventListener('dblclick',e=>{ if(!S.editing)return; openTierModal(tier.id); });
+  lbl.addEventListener('click',e=>{
+    if(!S.editing)return;
+    const a=e.target.closest('[data-a]')?.dataset.a;
+    if(!a)return; e.stopPropagation();
+    if(a==='edit')openTierModal(tier.id);
+    if(a==='del')deleteTier(tier.id);
+    if(a==='up')moveTier(tier.id,-1);
+    if(a==='down')moveTier(tier.id,1);
+  });
+
+  // Drop zone
+  const dz=document.createElement('div');
+  dz.className='tier-dz'; dz.dataset.tid=tier.id;
+  const hint=document.createElement('div');
+  hint.className='tier-dz-hint'; hint.textContent=`Arraste para ${tier.label}`;
+  dz.appendChild(hint);
+  items.forEach(img=>dz.appendChild(buildItem(img)));
+
+  if(S.editing){
+    dz.addEventListener('dragover',e=>{
+      e.preventDefault(); e.dataTransfer.dropEffect='move';
+      row.classList.add('dov');
+      if(!dz.querySelector('.drop-ph')){const ph=document.createElement('div');ph.className='drop-ph';dz.appendChild(ph);}
+    });
+    dz.addEventListener('dragleave',e=>{
+      if(!dz.contains(e.relatedTarget)){row.classList.remove('dov');dz.querySelector('.drop-ph')?.remove();}
+    });
+    dz.addEventListener('drop',e=>{
+      e.preventDefault(); row.classList.remove('dov'); dz.querySelector('.drop-ph')?.remove();
+      const id=e.dataTransfer.getData('text/plain');
+      if(id)moveToTier(id,tier.id);
+    });
+  }
+
+  row.appendChild(lbl);
+  row.appendChild(dz);
+  return row;
+}
+
+function buildItem(img){
+  const el=document.createElement('div');
+  el.className='tier-item';
+  if(S.editing){ el.draggable=true; }
+  el.dataset.iid=img.id;
+  el.title=img.name||'';
+
+  el.innerHTML=`
+    <img src="${esc(img.url)}" alt="${esc(img.name||'')}" loading="lazy"/>
+    <div class="item-name">${esc(img.name||'')}</div>
+    <div class="item-ov">
+      ${S.editing?`<button class="item-del" data-id="${img.id}">✕ Remover</button>
+      <button class="item-edit-name" data-id="${img.id}">✏️ Nome</button>`:''}
+    </div>`;
+
+  if(S.editing){
+    el.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain',img.id);
+      e.dataTransfer.effectAllowed='move';
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+    el.querySelector('.item-del')?.addEventListener('click',e=>{e.stopPropagation();removeImage(img.id);});
+    el.querySelector('.item-edit-name')?.addEventListener('click',e=>{e.stopPropagation();startEditName(img.id,el);});
+  }
+  return el;
+}
+
+// ════════════════════════════════════════════
+// POOL
+// ════════════════════════════════════════════
+function renderPool(){
+  const grid=document.getElementById('pool-grid');
+  if(!grid)return;
+  grid.querySelectorAll('.tier-item,.upload-spinner').forEach(el=>el.remove());
+  const unranked=S.items.filter(i=>!i.tierId);
+  const empty=document.getElementById('pool-empty');
+  if(empty)empty.style.display=unranked.length?'none':'';
+  unranked.forEach(img=>grid.appendChild(buildItem(img)));
+  const cnt=document.getElementById('pool-cnt');
+  if(cnt)cnt.textContent=S.items.length;
+}
+
+// ════════════════════════════════════════════
+// INTERACTIONS INIT
+// ════════════════════════════════════════════
+function initInteractions(){
+  // Pool drag & drop
+  const grid=document.getElementById('pool-grid');
+  if(grid){
+    grid.addEventListener('dragover',e=>{e.preventDefault();grid.classList.add('dov');});
+    grid.addEventListener('dragleave',e=>{if(!grid.contains(e.relatedTarget))grid.classList.remove('dov');});
+    grid.addEventListener('drop',e=>{
+      e.preventDefault();grid.classList.remove('dov');
+      const id=e.dataTransfer.getData('text/plain');
+      if(id)returnToPool(id);
+    });
+  }
+
+  // Upload zone
+  const upZone=document.getElementById('upload-zone');
+  const fileInput=document.getElementById('file-input');
+  if(fileInput) fileInput.addEventListener('change',e=>{handleFiles(e.target.files);fileInput.value='';});
+  if(upZone){
+    upZone.addEventListener('dragover',e=>{e.preventDefault();upZone.classList.add('dov');});
+    upZone.addEventListener('dragleave',()=>upZone.classList.remove('dov'));
+    upZone.addEventListener('drop',e=>{e.preventDefault();upZone.classList.remove('dov');handleFiles(e.dataTransfer.files);});
+  }
+
+  // Resize handle (global mouse tracking)
+  initResizeHandles();
+}
+
+// ════════════════════════════════════════════
+// RESIZE HANDLES
+// ════════════════════════════════════════════
+let _resizing=false, _resX=0, _resW=0;
+
+function initResizeHandles(){
+  document.addEventListener('mousedown',onResizeDown);
+  document.addEventListener('mousemove',onResizeMove);
+  document.addEventListener('mouseup',onResizeUp);
+}
+
+function onResizeDown(e){
+  if(!e.target.classList.contains('lbl-handle'))return;
+  _resizing=true; _resX=e.clientX; _resW=S.labelW;
+  e.target.classList.add('active');
+  e.preventDefault();
+  document.body.style.cursor='col-resize';
+  document.body.style.userSelect='none';
+}
+
+function onResizeMove(e){
+  if(!_resizing)return;
+  const w=Math.max(60,Math.min(300,_resW+(e.clientX-_resX)));
+  applyLabelW(w);
+}
+
+function onResizeUp(){
+  if(!_resizing)return;
+  _resizing=false;
+  document.body.style.cursor='';
+  document.body.style.userSelect='';
+  document.querySelectorAll('.lbl-handle').forEach(h=>h.classList.remove('active'));
+  if(S.list)S.list.labelWidth=S.labelW;
+  markDirty();
+}
+
+// ════════════════════════════════════════════
+// ITEM ACTIONS
+// ════════════════════════════════════════════
+async function handleFiles(files){
+  const grid=document.getElementById('pool-grid');
+  const arr=Array.from(files).filter(f=>f.type.startsWith('image/'));
+  for(const file of arr){
+    // Show spinner
+    const sp=document.createElement('div'); sp.className='upload-spinner';
+    if(grid)grid.appendChild(sp);
+    try{
+      const {url,path}=await uploadImage(file);
+      const img={id:uid(),tierId:null,name:parseFileName(file.name),url,path};
+      S.items.push(img);
+      sp.remove();
+      renderPool();
+      markDirty();
+    }catch(e){
+      sp.remove();
+      toast('Falha no upload de '+file.name+': '+e.message,'err');
+    }
+  }
+}
+
+async function uploadImage(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  const path=uid()+'.'+ext;
+  const {error}=await sb.storage.from(BKT).upload(path,file,{contentType:file.type,upsert:false});
+  if(error)throw new Error(error.message);
+  const {data:{publicUrl}}=sb.storage.from(BKT).getPublicUrl(path);
+  return {url:publicUrl,path};
+}
+
+function moveToTier(imgId,tierId){
+  const img=S.items.find(i=>i.id===imgId);
+  if(img){img.tierId=tierId;renderBoard();renderPool();markDirty();}
+}
+
+function returnToPool(imgId){
+  const img=S.items.find(i=>i.id===imgId);
+  if(img){img.tierId=null;renderBoard();renderPool();markDirty();}
+}
+
+async function removeImage(imgId){
+  const img=S.items.find(i=>i.id===imgId);
+  if(!img)return;
+  // Delete from storage
+  if(img.path){ try{await sb.storage.from(BKT).remove([img.path]);}catch{} }
+  S.items=S.items.filter(i=>i.id!==imgId);
+  renderBoard();renderPool();markDirty();
+}
+
+function returnAllToPool(){ S.items.forEach(i=>i.tierId=null); renderBoard();renderPool();markDirty(); }
+
+function clearPool(){
+  if(!confirm('Remover TODAS as imagens do pool (não recuperável)?'))return;
+  const toDelete=S.items.filter(i=>!i.tierId);
+  toDelete.forEach(async img=>{ if(img.path)try{await sb.storage.from(BKT).remove([img.path]);}catch{} });
+  S.items=S.items.filter(i=>i.tierId);
+  renderBoard();renderPool();markDirty();
+}
+
+// ════════════════════════════════════════════
+// ITEM NAME EDIT
+// ════════════════════════════════════════════
+function startEditName(imgId,el){
+  const img=S.items.find(i=>i.id===imgId);
+  if(!img)return;
+  const existing=el.querySelector('.name-inline-input');
+  if(existing)return;
+  const inp=document.createElement('input');
+  inp.className='name-inline-input';
+  inp.value=img.name||'';
+  inp.type='text';
+  inp.maxLength=60;
+  el.appendChild(inp);
+  inp.focus(); inp.select();
+  const confirm=()=>{
+    img.name=inp.value.trim()||img.name;
+    inp.remove();
+    // Update rendered name
+    const nameEl=el.querySelector('.item-name');
+    if(nameEl)nameEl.textContent=img.name;
+    el.title=img.name;
+    markDirty();
+  };
+  inp.addEventListener('blur',confirm);
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter')confirm();
+    if(e.key==='Escape'){inp.remove();}
+    e.stopPropagation();
+  });
+}
+
+// ════════════════════════════════════════════
+// TOGGLE SHAPE / NAMES
+// ════════════════════════════════════════════
+function toggleShape(shape,btn){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.body.classList.toggle('round-items',shape==='round');
+  if(S.list)S.list.shape=shape;
+  markDirty();
+}
+
+function toggleNames(){
+  const on=!S.list.showNames;
+  S.list.showNames=on;
+  document.body.classList.toggle('show-names',on);
+  const btn=document.getElementById('toggle-names-btn');
+  if(btn)btn.textContent=on?'👁 Nomes ON':'👁 Nomes OFF';
+  markDirty();
+}
+
+// ════════════════════════════════════════════
+// TIER ACTIONS
+// ════════════════════════════════════════════
+function addTier(label,rarityId,bg,solid){
+  S.tiers.push({id:uid(),label,rarityId,bg:bg||null,solid:solid||null});
+  renderBoard();markDirty();
+}
+
+function deleteTier(tid){
+  S.items.forEach(i=>{if(i.tierId===tid)i.tierId=null;});
+  S.tiers=S.tiers.filter(t=>t.id!==tid);
+  renderBoard();renderPool();markDirty();
+  toast('Tier removida','inf');
+}
+
+function moveTier(tid,dir){
+  const idx=S.tiers.findIndex(t=>t.id===tid);
+  const ni=idx+dir;
+  if(ni<0||ni>=S.tiers.length)return;
+  [S.tiers[idx],S.tiers[ni]]=[S.tiers[ni],S.tiers[idx]];
+  renderBoard();markDirty();
+}
+
+function updateTier(tid,label,rarityId,bg,solid){
+  const t=S.tiers.find(t=>t.id===tid);
+  if(!t)return;
+  t.label=label;t.rarityId=rarityId;t.bg=bg||null;t.solid=solid||null;
+  renderBoard();markDirty();
+}
+
+function resetTiers(){
+  if(!confirm('Resetar tiers para o padrão? Imagens voltam ao pool.'))return;
+  S.items.forEach(i=>i.tierId=null);
+  const tmpl=TEMPLATES[S.list?.template||'game'];
+  S.tiers=tmpl.tiers.map(t=>({
+    id:uid(),label:t.label,rarityId:t.rarityId,
+    bg:t.bg||null,solid:t.solid||null,
+  }));
+  renderBoard();renderPool();markDirty();
+  toast('Tiers restauradas','inf');
+}
+
+// ════════════════════════════════════════════
+// SAVE
+// ════════════════════════════════════════════
+async function handleSave(){
+  if(S.saving)return;
+  // If first time saving (new list), ask for password
+  if(S.isNew){
+    showSetPasswordModal(async(pw)=>{
+      S.pwHash=await hashPass(pw);
+      rememberAuth(S.listId,S.pwHash);
+      await doSave();
+    });
+    return;
+  }
+  await doSave();
+}
+
+async function doSave(){
+  if(S.saving)return;
+  S.saving=true;updateSaveStatus();
+  try{
+    const listPayload={
+      id:S.listId,
+      title:S.list.title,
+      description:S.list.description||'',
+      password_hash:S.pwHash,
+      template:S.list.template,
+      show_item_names:S.list.showNames||false,
+      item_shape:S.list.shape||'square',
+      label_width:S.labelW,
+    };
+    const {data:savedList,error:lErr}=await sb.from('tier_lists').upsert(listPayload,{onConflict:'id'}).select().single();
+    if(lErr)throw lErr;
+    const newListId=savedList.id;
+    S.listId=newListId;
+
+    // Tiers: delete existing, insert new
+    await sb.from('tiers').delete().eq('tier_list_id',newListId);
+    if(S.tiers.length){
+      const {error:tErr}=await sb.from('tiers').insert(
+        S.tiers.map((t,i)=>({
+          id:t.id,tier_list_id:newListId,
+          label:t.label,rarity_id:t.rarityId||'common',
+          bg_gradient:t.bg||null,solid_color:t.solid||'#7b8494',
+          position:i,
+        }))
+      );
+      if(tErr)throw tErr;
+    }
+
+    // Items: delete existing, insert all current
+    await sb.from('items').delete().eq('tier_list_id',newListId);
+    if(S.items.length){
+      const {error:iErr}=await sb.from('items').insert(
+        S.items.map((img,i)=>({
+          id:img.id,tier_list_id:newListId,
+          tier_id:img.tierId||null,
+          name:img.name||'',
+          image_url:img.url,
+          storage_path:img.path||'',
+          position:i,
+        }))
+      );
+      if(iErr)throw iErr;
+    }
+
+    S.isNew=false;S.dirty=false;S.saving=false;
+    updateSaveStatus();
+    // replaceState — update URL without triggering hashchange/reload
+    history.replaceState(null,'','#/list/'+newListId);
+    toast('Salvo com sucesso!','ok');
+  }catch(e){
+    S.saving=false;S.dirty=true;updateSaveStatus();
+    toast('Erro ao salvar: '+e.message,'err');
+  }
+}
+
+// ════════════════════════════════════════════
+// CREATE NEW LIST
+// ════════════════════════════════════════════
+let _createTemplate='game';
+function showCreateModal(){
+  _createTemplate='game';
+  showModal('modal-create');
+  document.getElementById('create-title').value='';
+  document.getElementById('create-desc').value='';
+  document.getElementById('create-err').textContent='';
+  renderTmplPicker();
+  setTimeout(()=>document.getElementById('create-title').focus(),100);
+}
+
+function renderTmplPicker(){
+  const c=document.getElementById('tmpl-picker');
+  if(!c)return;
+  c.innerHTML=Object.entries(TEMPLATES).map(([k,v])=>`
+    <div class="tmpl-card ${k===_createTemplate?'on':''}" onclick="selectTemplate('${k}')">
+      <div class="tmpl-prev">${v.prev.map(c=>`<span style="background:${c}"></span>`).join('')}</div>
+      <div class="tmpl-name">${v.name}</div>
+      <div class="tmpl-desc">${v.desc}</div>
+    </div>`).join('');
+}
+
+function selectTemplate(k){ _createTemplate=k; renderTmplPicker(); }
+
+document.addEventListener('DOMContentLoaded',()=>{});
+
+function createNewList(){
+  const title=document.getElementById('create-title').value.trim();
+  if(!title){document.getElementById('create-err').textContent='Digite um título.';return;}
+  const desc=document.getElementById('create-desc').value.trim();
+  closeModal('modal-create');
+
+  // Build initial state
+  S.isNew=true;
+  S.listId=uid(); // temp, will be replaced on save
+  S.list={title,description:desc,template:_createTemplate,showNames:false,shape:'square',labelWidth:110};
+  S.tiers=TEMPLATES[_createTemplate].tiers.map(t=>({
+    id:uid(),label:t.label,rarityId:t.rarityId,
+    bg:t.bg||null,solid:t.solid||null,
+  }));
+  S.items=[];
+  S.editing=true;
+  S.dirty=false;
+  S.pwHash=null;
+  applyLabelW(110);
+  document.body.classList.remove('show-names','round-items');
+  S.view='editor';
+  // Use replaceState (not navigate) so hashchange does NOT fire
+  // and the router doesn't try to load 'new' from Supabase
+  history.replaceState(null,'','#/list/new');
+  renderEditor();
+  toast('Nova tier list criada — adicione imagens e salve!','inf');
+}
+
+// ════════════════════════════════════════════
+// TIER MODAL
+// ════════════════════════════════════════════
+let _editTierId=null;
+
+function openTierModal(tid=null){
+  _editTierId=tid;
+  S.selRarity=tid?S.tiers.find(t=>t.id===tid)?.rarityId||'rare':'rare';
+  const isEdit=!!tid;
+  document.getElementById('tier-modal-h2').textContent=isEdit?'Editar Tier':'Nova Tier';
+  document.getElementById('tier-modal-confirm').textContent=isEdit?'Salvar':'Criar';
+  document.getElementById('tier-name-inp').value=isEdit?S.tiers.find(t=>t.id===tid)?.label||'':'';
+  document.getElementById('tier-modal-err').textContent='';
+  renderRarityGrid();
+  showModal('modal-tier');
+  setTimeout(()=>document.getElementById('tier-name-inp').focus(),100);
+}
+
+function renderRarityGrid(){
+  const g=document.getElementById('rarity-grid-el');
+  if(!g)return;
+  g.innerHTML=RARITIES.map(r=>`
+    <div class="rarity-card ${r.id===S.selRarity?'on':''}" style="background:${r.bg};color:${textFor(r.solid)}"
+         onclick="selectRarity('${r.id}')">
+      <span class="rarity-gem">${r.gem}</span>
+      <span class="rarity-name">${r.name}</span>
+    </div>`).join('');
+  const custom=RARITIES.find(r=>r.id==='__custom__');
+  document.getElementById('custom-color-inp').value=custom?.solid||S.selRarity==='__custom__'?custom?.solid:'#7c6fff';
+}
+
+function selectRarity(id){ S.selRarity=id; renderRarityGrid(); }
+
+function tierModalConfirm(){
+  const label=document.getElementById('tier-name-inp').value.trim();
+  if(!label){document.getElementById('tier-modal-err').textContent='Digite um nome.';return;}
+  let bg=null,solid=null;
+  if(S.selRarity==='__custom__'){
+    solid=document.getElementById('custom-color-inp').value;
+    bg=solid;
+  }
+  if(_editTierId) updateTier(_editTierId,label,S.selRarity,bg,solid);
+  else addTier(label,S.selRarity,bg,solid);
+  closeModal('modal-tier');
+  toast(_editTierId?'Tier atualizada':'Tier criada','ok');
+}
+
+// ════════════════════════════════════════════
+// MODALS MANAGEMENT
+// ════════════════════════════════════════════
+const MODAL_HTML={
+  'modal-pw':`
+  <div class="ov" id="modal-pw" onclick="if(event.target===this)closeModal('modal-pw')">
+    <div class="modal modal-sm">
+      <h2>🔒 Senha da Tier List</h2>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px" id="pw-error"></p>
+      <div class="fg">
+        <label class="fl">Senha</label>
+        <input class="fi" type="password" id="pw-input" placeholder="Digite a senha…" autocomplete="current-password"/>
+      </div>
+      <div class="ma">
+        <button class="btn bg" onclick="closeModal('modal-pw')">Cancelar</button>
+        <button class="btn bp" id="pw-confirm-btn">Confirmar</button>
+      </div>
+    </div>
+  </div>`,
+
+  'modal-setpw':`
+  <div class="ov" id="modal-setpw">
+    <div class="modal modal-sm">
+      <h2>🔑 Definir Senha</h2>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">A senha protege a edição desta tier list. Anote-a!</p>
+      <div class="fg">
+        <label class="fl">Nova Senha</label>
+        <input class="fi" type="password" id="setpw-inp" placeholder="Mínimo 4 caracteres…"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Confirmar Senha</label>
+        <input class="fi" type="password" id="setpw-conf" placeholder="Repita a senha…"/>
+      </div>
+      <p style="font-size:11px;color:var(--dan);margin-top:-6px;margin-bottom:10px" id="setpw-err"></p>
+      <div class="ma">
+        <button class="btn bg" id="setpw-cancel">Cancelar</button>
+        <button class="btn bp" id="setpw-confirm">Salvar com senha</button>
+      </div>
+    </div>
+  </div>`,
+
+  'modal-create':`
+  <div class="ov" id="modal-create" onclick="if(event.target===this)closeModal('modal-create')">
+    <div class="modal">
+      <h2>🏆 Nova Tier List</h2>
+      <div class="fg">
+        <label class="fl">Título *</label>
+        <input class="fi" type="text" id="create-title" placeholder="Ex: Filmes de 2024…" maxlength="60"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Descrição (opcional)</label>
+        <textarea class="fi" id="create-desc" placeholder="Descreva sua tier list…" maxlength="200"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Template de Cores</label>
+        <div class="tmpl-grid" id="tmpl-picker"></div>
+      </div>
+      <p style="font-size:11px;color:var(--dan);margin-top:-4px;margin-bottom:6px" id="create-err"></p>
+      <div class="ma">
+        <button class="btn bg" onclick="closeModal('modal-create')">Cancelar</button>
+        <button class="btn bp" onclick="createNewList()">Criar &amp; Começar ▶</button>
+      </div>
+    </div>
+  </div>`,
+
+  'modal-tier':`
+  <div class="ov" id="modal-tier" onclick="if(event.target===this)closeModal('modal-tier')">
+    <div class="modal">
+      <h2 id="tier-modal-h2">Nova Tier</h2>
+      <div class="fg">
+        <label class="fl">Nome / Rótulo</label>
+        <input class="fi" type="text" id="tier-name-inp" placeholder="S, A, GOAT, Lendário…" maxlength="20"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Raridade / Cor</label>
+        <div class="rarity-grid" id="rarity-grid-el"></div>
+        <div class="cc-row">
+          <input type="color" id="custom-color-inp" value="#7c6fff" title="Cor personalizada"
+            oninput="setCustomColor(this.value)"/>
+          <span>Cor personalizada</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--dan)" id="tier-modal-err"></p>
+      <div class="ma">
+        <button class="btn bg" onclick="closeModal('modal-tier')">Cancelar</button>
+        <button class="btn bp" id="tier-modal-confirm" onclick="tierModalConfirm()">Criar</button>
+      </div>
+    </div>
+  </div>`,
+};
+
+function showModal(id){
+  let el=document.getElementById(id);
+  if(!el){
+    const html=MODAL_HTML[id];
+    if(!html)return;
+    document.getElementById('modals').insertAdjacentHTML('beforeend',html);
+    el=document.getElementById(id);
+  }
+  el.classList.add('open');
+  if(id==='modal-tier') renderRarityGrid();
+  if(id==='modal-create') setTimeout(renderTmplPicker,0);
+  if(id==='modal-pw'){
+    const inp=document.getElementById('pw-input');
+    if(inp){ inp.addEventListener('keydown',e=>{ if(e.key==='Enter')document.getElementById('pw-confirm-btn').click(); }); }
+  }
+}
+
+function closeModal(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.remove('open');
+}
+
+function closeAllModals(){
+  document.querySelectorAll('.ov.open').forEach(el=>el.classList.remove('open'));
+}
+
+function setCustomColor(hex){
+  S.selRarity='__custom__';
+  const existing=RARITIES.find(r=>r.id==='__custom__');
+  const c={id:'__custom__',name:'Custom',gem:'🎨',bg:hex,solid:hex};
+  if(existing)Object.assign(existing,c); else RARITIES.push(c);
+  renderRarityGrid();
+}
+
+// ════════════════════════════════════════════
+// SET PASSWORD MODAL
+// ════════════════════════════════════════════
+function showSetPasswordModal(callback){
+  showModal('modal-setpw');
+  document.getElementById('setpw-inp').value='';
+  document.getElementById('setpw-conf').value='';
+  document.getElementById('setpw-err').textContent='';
+  setTimeout(()=>document.getElementById('setpw-inp').focus(),100);
+
+  document.getElementById('setpw-cancel').onclick=()=>closeModal('modal-setpw');
+  document.getElementById('setpw-confirm').onclick=async()=>{
+    const pw=document.getElementById('setpw-inp').value;
+    const conf=document.getElementById('setpw-conf').value;
+    if(pw.length<4){document.getElementById('setpw-err').textContent='Mínimo 4 caracteres.';return;}
+    if(pw!==conf){document.getElementById('setpw-err').textContent='Senhas não conferem.';return;}
+    closeModal('modal-setpw');
+    callback(pw);
+  };
+
+  ['setpw-inp','setpw-conf'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('keydown',e=>{
+      if(e.key==='Enter')document.getElementById('setpw-confirm').click();
+    });
+  });
+}
+
+// ════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeAllModals();
+});
+
+// ════════════════════════════════════════════
+// EXPORT PNG
+// ════════════════════════════════════════════
+async function exportPNG(){
+  const board=document.getElementById('tier-board');
+  if(!board||!S.tiers.length){toast('Nada para exportar','err');return;}
+  if(!window.html2canvas){
+    toast('Carregando exportador…','inf');
+    await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+  }
+  toast('Gerando imagem…','inf');
+  try{
+    const c=await html2canvas(board,{backgroundColor:'#0f1219',scale:2,useCORS:true,allowTaint:true,logging:false});
+    const a=document.createElement('a');a.download=(S.list?.title||'tierlist')+'.png';a.href=c.toDataURL('image/png');a.click();
+    toast('Exportado!','ok');
+  }catch(e){toast('Erro: '+e.message,'err');}
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+async function init(){
+  // Build static modals
+  ['modal-pw','modal-setpw','modal-create','modal-tier'].forEach(id=>{
+    if(!document.getElementById(id)){
+      document.getElementById('modals').insertAdjacentHTML('beforeend',MODAL_HTML[id]||'');
+    }
+  });
+  handleRoute();
+}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>

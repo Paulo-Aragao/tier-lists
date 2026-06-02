@@ -1,0 +1,11 @@
+# Python server (dev local apenas)
+__pycache__/
+*.py[cod]
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
