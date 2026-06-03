@@ -344,7 +344,7 @@ function toast(msg,type='inf'){
 function refreshIcons(){
   if(window.lucide) window.lucide.createIcons();
 }
-function markDirty(){ S.dirty=true; updateSaveStatus(); scheduleSave(); }
+function markDirty(){ S.dirty=true; updateSaveStatus(); }
 function updateSaveStatus(){
   const dot=document.getElementById('save-dot');
   const txt=document.getElementById('save-txt');
@@ -352,11 +352,6 @@ function updateSaveStatus(){
   if(S.saving){ dot.className='save-dot saving'; txt.textContent='Salvando…'; }
   else if(S.dirty){ dot.className='save-dot dirty'; txt.textContent='Não salvo'; }
   else{ dot.className='save-dot saved'; txt.textContent='Salvo'; }
-}
-function scheduleSave(){
-  if(!S.editing||S.isNew)return;
-  clearTimeout(S.saveTimer);
-  S.saveTimer=setTimeout(()=>{ if(S.dirty&&!S.saving)doSave(); },3000);
 }
 
 // Session auth
@@ -430,14 +425,15 @@ function hubCard(list){
   },0);
   return`<div class="hub-card">
     <div class="hub-strip" id="${id}"><span style="background:var(--acc)"></span></div>
+    <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar" style="position:absolute;top:12px;right:12px;z-index:10;padding:6px;min-width:28px;height:28px;border-radius:6px;background:rgba(255,90,121,0.12);border:1px solid rgba(255,90,121,0.22)"><i data-lucide="trash-2" style="width:13px;height:13px;margin:0"></i></button>
     <div class="hub-body">
-      <div class="hub-title">${esc(list.title)}</div>
+      <div class="hub-title" style="padding-right:24px">${esc(list.title)}</div>
       <div class="hub-desc">${esc(list.description||'Sem descrição')}</div>
       <div class="hub-meta"><span><i data-lucide="calendar" style="width:12px;height:12px;margin-right:4px;vertical-align:-2px"></i> ${date}</span></div>
-      <div class="hub-btns">
-        <button class="btn bp bsm" onclick="navigate('/list/${list.id}')"><i data-lucide="eye"></i> Visualizar</button>
+      <div class="hub-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button class="btn bp bsm" onclick="navigate('/list/${list.id}')" style="grid-column:span 2"><i data-lucide="eye"></i> Visualizar</button>
+        <button class="btn bg bsm" onclick="promptClone('${list.id}')" title="Usar como template (duplicar)"><i data-lucide="copy"></i> Copiar</button>
         <button class="btn bg bsm" onclick="promptEdit('${list.id}')"><i data-lucide="edit-3"></i> Editar</button>
-        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar"><i data-lucide="trash-2"></i></button>
       </div>
     </div>
   </div>`;
@@ -541,6 +537,75 @@ async function promptDelete(listId){
       await deleteList(listId);
     }else{
       document.getElementById('pw-error').textContent='Senha incorreta.';
+    }
+  };
+}
+
+async function promptClone(listId){
+  const list=S.lists.find(l=>l.id===listId);
+  if(!list)return;
+  showModal('modal-clone');
+  document.getElementById('clone-title').value='Cópia de ' + list.title;
+  document.getElementById('clone-desc').value=list.description||'';
+  document.getElementById('clone-err').textContent='';
+  setTimeout(()=>document.getElementById('clone-title').focus(),100);
+
+  document.getElementById('clone-confirm-btn').onclick=async()=>{
+    const title=document.getElementById('clone-title').value.trim();
+    if(!title){document.getElementById('clone-err').textContent='Digite um título.';return;}
+    const desc=document.getElementById('clone-desc').value.trim();
+    closeModal('modal-clone');
+    
+    toast('Carregando template…','inf');
+    try{
+      const [tiersRes,itemsRes]=await Promise.all([
+        sb.from('tiers').select('*').eq('tier_list_id',listId).order('position'),
+        sb.from('items').select('*').eq('tier_list_id',listId).order('position'),
+      ]);
+      if(tiersRes.error)throw tiersRes.error;
+      if(itemsRes.error)throw itemsRes.error;
+
+      // Build duplicated state
+      S.isNew=true;
+      S.listId=uid();
+      S.list={
+        title:title, description:desc,
+        template:list.template, showNames:list.show_item_names,
+        shape:list.item_shape, labelWidth:list.label_width||110,
+      };
+      S.pwHash=null;
+
+      const tierIdMap={};
+      S.tiers=(tiersRes.data||[]).map(t=>{
+        const newId=uid();
+        tierIdMap[t.id]=newId;
+        return {
+          id:newId, label:t.label, rarityId:t.rarity_id,
+          bg:t.bg_gradient, solid:t.solid_color, position:t.position,
+        };
+      });
+
+      S.items=(itemsRes.data||[]).map(i=>({
+        id:uid(),
+        tierId:i.tier_id ? tierIdMap[i.tier_id] : null,
+        name:i.name, url:i.image_url,
+        path:null, // Keep path null to avoid deleting original storage file
+        position:i.position,
+      }));
+
+      applyLabelW(S.list.labelWidth);
+      if(S.list.showNames) document.body.classList.add('show-names');
+      else document.body.classList.remove('show-names');
+      if(S.list.shape==='round') document.body.classList.add('round-items');
+      else document.body.classList.remove('round-items');
+
+      S.editing=true;
+      S.dirty=true; // Marked dirty so it prompts to save
+      history.replaceState(null,'','#/list/new');
+      renderEditor();
+      toast('Template carregado! Clique em Salvar para definir a senha e gravar no banco.','ok');
+    }catch(e){
+      toast('Erro ao carregar template: '+e.message,'err');
     }
   };
 }
@@ -1432,6 +1497,27 @@ const MODAL_HTML={
       </div>
     </div>
   </div>`,
+
+  'modal-clone':`
+  <div class="ov" id="modal-clone" onclick="if(event.target===this)closeModal('modal-clone')">
+    <div class="modal">
+      <h2><i data-lucide="copy" style="margin-right:6px;color:var(--acc);vertical-align:-2px"></i> Usar como Template</h2>
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Isso criará uma nova tier list copiando as tiers e itens desta.</p>
+      <div class="fg">
+        <label class="fl">Novo Título *</label>
+        <input class="fi" type="text" id="clone-title" placeholder="Ex: Cópia de..." maxlength="60"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Descrição (opcional)</label>
+        <textarea class="fi" id="clone-desc" placeholder="Descreva sua nova tier list…" maxlength="200"></textarea>
+      </div>
+      <p style="font-size:11px;color:var(--dan);margin-top:-4px;margin-bottom:6px" id="clone-err"></p>
+      <div class="ma">
+        <button class="btn bg" onclick="closeModal('modal-clone')">Cancelar</button>
+        <button class="btn bp" id="clone-confirm-btn">Criar &amp; Começar ▶</button>
+      </div>
+    </div>
+  </div>`,
 };
 
 function showModal(id){
@@ -1526,7 +1612,7 @@ async function exportPNG(){
 // ════════════════════════════════════════════
 async function init(){
   // Build static modals
-  ['modal-pw','modal-setpw','modal-create','modal-tier'].forEach(id=>{
+  ['modal-pw','modal-setpw','modal-create','modal-tier','modal-clone'].forEach(id=>{
     if(!document.getElementById(id)){
       document.getElementById('modals').insertAdjacentHTML('beforeend',MODAL_HTML[id]||'');
     }
