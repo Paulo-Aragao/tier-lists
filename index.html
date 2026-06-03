@@ -3,51 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TierForge — Hub</title>
+  <title>TiersList — Hub</title>
   <meta name="description" content="Crie e compartilhe tier lists com amigos. Powered by Supabase." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
 /* ═══════════════ RESET ═══════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080b12;--bgs:#0f1219;--bge:#161b26;--bgh:#1e2535;
-  --b:rgba(255,255,255,.06);--bh:rgba(255,255,255,.13);
-  --t1:#eef0f8;--t2:#8892a8;--t3:#454e65;
-  --acc:#7c6fff;--ag:rgba(124,111,255,.32);--dan:#ff4d6d;--ok:#3de08a;
-  --rs:6px;--rm:12px;--rl:20px;
-  --sh:0 4px 20px rgba(0,0,0,.5);--shl:0 16px 60px rgba(0,0,0,.65);
-  --tr:.18s cubic-bezier(.4,0,.2,1);
+  --bg:#121622;--bgs:#202940;--bge:#2d3754;--bgh:#384568;
+  --b:rgba(202,170,152,0.08);--bh:rgba(202,170,152,0.18);
+  --t1:#f4efea;--t2:#caaa98;--t3:#9a8678;
+  --acc:#caaa98;--acc-dark:#9a8678;--ag:rgba(202,170,152,0.2);--dan:#ff5a79;--ok:#4ade80;
+  --rs:8px;--rm:14px;--rl:22px;
+  --sh:0 4px 24px rgba(10,14,22,0.4);--shl:0 16px 48px rgba(10,14,22,0.6);
+  --tr:.2s cubic-bezier(.4,0,.2,1);
   --sz:82px;--ir:var(--rs);--lw:110px;
 }
 html{height:100%}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(124,111,255,.10) 0%,transparent 65%),radial-gradient(ellipse 50% 40% at 85% 110%,rgba(61,224,138,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(202,170,152,0.08) 0%,transparent 65%),radial-gradient(ellipse 50% 40% at 85% 110%,rgba(154,134,120,0.05) 0%,transparent 60%);pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#2a3048;border-radius:99px}
+::-webkit-scrollbar-thumb{background:#4b4038;border-radius:99px}
 /* ═══════════════ HEADER ═══════════════ */
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--b);background:rgba(8,11,18,.88);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--b);background:rgba(18,22,34,.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
-.logo-ico{width:34px;height:34px;background:linear-gradient(135deg,var(--acc),#b06fff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px var(--ag)}
-.logo-name{font-size:19px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(120deg,#fff 0%,#c4b8ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-ico{width:34px;height:34px;background:linear-gradient(135deg,var(--acc-dark),var(--acc));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#121622;box-shadow:0 0 18px var(--ag)}
+.logo-name{font-size:19px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(120deg,#fff 0%,#caaa98 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 #hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 /* ═══════════════ BUTTONS ═══════════════ */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;outline:none;transition:var(--tr);white-space:nowrap;user-select:none;text-decoration:none}
-.bp{background:linear-gradient(135deg,var(--acc),#a78bfa);color:#fff;box-shadow:0 3px 14px var(--ag)}
-.bp:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.bp{background:linear-gradient(135deg,var(--acc-dark),var(--acc));color:#121622;box-shadow:0 3px 14px var(--ag);font-weight:700}
+.bp:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .bg{background:transparent;color:var(--t2);border:1px solid var(--bh)}
-.bg:hover{background:var(--bge);color:var(--t1);border-color:rgba(255,255,255,.22)}
-.bd{background:rgba(255,77,109,.12);color:var(--dan);border:1px solid rgba(255,77,109,.22)}
-.bd:hover{background:rgba(255,77,109,.22)}
+.bg:hover{background:var(--bge);color:var(--t1);border-color:rgba(202,170,152,.35)}
+.bd{background:rgba(255,90,121,.12);color:var(--dan);border:1px solid rgba(255,90,121,.22)}
+.bd:hover{background:rgba(255,90,121,.22)}
 .bsm{padding:6px 12px;font-size:12px}
 .bic{padding:7px;font-size:14px;min-width:33px;justify-content:center}
 .pills{display:flex;background:var(--bge);border:1px solid var(--b);border-radius:8px;overflow:hidden}
 .pill{padding:7px 13px;font-size:12.5px;font-weight:600;background:transparent;border:none;color:var(--t2);cursor:pointer;font-family:inherit;transition:var(--tr)}
-.pill.on{background:var(--acc);color:#fff}
+.pill.on{background:var(--acc);color:#121622}
 .pill:hover:not(.on){background:var(--bgh);color:var(--t1)}
+.lucide{width:16px;height:16px;stroke-width:2.5;display:inline-block;vertical-align:middle}
+.btn .lucide{margin-right:5px;margin-top:-2px}
+.logo-ico .lucide{width:18px;height:18px;stroke-width:2.5;margin:0}
+.btn.bic .lucide{margin-right:0}
 /* ═══════════════ HUB ═══════════════ */
 .hub-wrap{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:32px 24px 80px}
 .hub-hero{text-align:center;padding:40px 0 36px}
@@ -209,8 +214,8 @@ textarea.fi{resize:vertical;min-height:64px}
 <body>
 <header class="hdr">
   <div class="logo" onclick="goHub()">
-    <div class="logo-ico">🏆</div>
-    <span class="logo-name">TierForge</span>
+    <div class="logo-ico"><i data-lucide="layers"></i></div>
+    <span class="logo-name">TiersList</span>
   </div>
   <div id="hdr-right"></div>
 </header>
@@ -336,6 +341,9 @@ function toast(msg,type='inf'){
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3200);
 }
+function refreshIcons(){
+  if(window.lucide) window.lucide.createIcons();
+}
 function markDirty(){ S.dirty=true; updateSaveStatus(); scheduleSave(); }
 function updateSaveStatus(){
   const dot=document.getElementById('save-dot');
@@ -384,7 +392,7 @@ window.addEventListener('hashchange',handleRoute);
 async function showHub(){
   S.view='hub';
   document.getElementById('hdr-right').innerHTML=`
-    <button class="btn bp" onclick="showCreateModal()">＋ Nova Tier List</button>`;
+    <button class="btn bp" onclick="showCreateModal()"><i data-lucide="plus"></i> Criar Tier List</button>`;
   document.getElementById('app').innerHTML=`<div class="loading-wrap"><div class="spinner"></div><p>Carregando tier lists…</p></div>`;
   try{
     const {data,error}=await sb.from('tier_lists').select('*').order('created_at',{ascending:false}).limit(100);
@@ -392,51 +400,27 @@ async function showHub(){
     S.lists=data||[];
     renderHub();
   }catch(e){
-    document.getElementById('app').innerHTML=`<div class="hub-wrap"><div class="hub-empty"><div class="ei">⚠️</div><p>Erro ao carregar: ${esc(e.message)}</p></div></div>`;
+    document.getElementById('app').innerHTML=`<div class="hub-wrap"><div class="hub-empty"><div class="ei"><i data-lucide="alert-triangle"></i></div><p>Erro ao carregar: ${esc(e.message)}</p></div></div>`;
+    refreshIcons();
   }
 }
 
 function renderHub(){
   let q='';
   const filtered=q?S.lists.filter(l=>l.title.toLowerCase().includes(q)):S.lists;
-  const cards=filtered.length?filtered.map(l=>hubCard(l)).join(''):`<div class="hub-empty"><div class="ei">📋</div><p>Nenhuma tier list ainda.<br>Seja o primeiro!</p></div>`;
+  const cards=filtered.length?filtered.map(l=>hubCard(l)).join(''):`<div class="hub-empty"><div class="ei"><i data-lucide="folder-open" style="width:40px;height:40px;stroke-width:1.5;color:var(--t3)"></i></div><p>Nenhuma tier list ainda.<br>Seja o primeiro!</p></div>`;
   document.getElementById('app').innerHTML=`
   <div class="hub-wrap">
     <div class="hub-hero">
-      <h2>🏆 TierForge Hub</h2>
+      <h2><i data-lucide="layers" style="width:36px;height:36px;vertical-align:-6px;margin-right:10px;color:var(--t2)"></i>TiersList Hub</h2>
       <p>Crie, compartilhe e compare tier lists com seus amigos</p>
-      <button class="btn bp" onclick="showCreateModal()" style="font-size:15px;padding:12px 28px">＋ Criar Nova Tier List</button>
+      <button class="btn bp" onclick="showCreateModal()" style="font-size:15px;padding:12px 28px"><i data-lucide="plus"></i> Criar Nova Tier List</button>
     </div>
     <div class="hub-grid" id="hub-grid">${cards}</div>
   </div>`;
+  refreshIcons();
 }
 
-function hubCard(list){
-  // Build color strip from template
-  const strip=hubStrip(list);
-  const date=new Date(list.created_at).toLocaleDateString('pt-BR');
-  return`<div class="hub-card">
-    <div class="hub-strip">${strip}</div>
-    <div class="hub-body">
-      <div class="hub-title">${esc(list.title)}</div>
-      <div class="hub-desc">${esc(list.description||'Sem descrição')}</div>
-      <div class="hub-meta"><span>📅 ${date}</span></div>
-      <div class="hub-btns">
-        <button class="btn bg bsm" onclick="openList('${list.id}')">👁 Visualizar</button>
-        <button class="btn bp bsm" onclick="promptEdit('${list.id}')">✏️ Editar</button>
-        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar">🗑</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-async function hubStrip(list){
-  // Just return colors array – will be rendered in JS after tiers are loaded
-  // For now use a generic placeholder
-  return `<span style="background:var(--acc)"></span>`;
-}
-
-// Override hubCard with async strip loading
 function hubCard(list){
   const date=new Date(list.created_at).toLocaleDateString('pt-BR');
   const id='strip_'+list.id.replace(/-/g,'');
@@ -454,11 +438,11 @@ function hubCard(list){
     <div class="hub-body">
       <div class="hub-title">${esc(list.title)}</div>
       <div class="hub-desc">${esc(list.description||'Sem descrição')}</div>
-      <div class="hub-meta"><span>📅 ${date}</span></div>
+      <div class="hub-meta"><span><i data-lucide="calendar" style="width:12px;height:12px;margin-right:4px;vertical-align:-2px"></i> ${date}</span></div>
       <div class="hub-btns">
-        <button class="btn bg bsm" onclick="openList('${list.id}')">👁 Visualizar</button>
-        <button class="btn bp bsm" onclick="promptEdit('${list.id}')">✏️ Editar</button>
-        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar">🗑</button>
+        <button class="btn bp bsm" onclick="navigate('/list/${list.id}')"><i data-lucide="eye"></i> Visualizar</button>
+        <button class="btn bg bsm" onclick="promptEdit('${list.id}')"><i data-lucide="edit-3"></i> Editar</button>
+        <button class="btn bd bsm bic" onclick="promptDelete('${list.id}')" title="Deletar"><i data-lucide="trash-2"></i></button>
       </div>
     </div>
   </div>`;
@@ -588,31 +572,31 @@ function renderEditor(){
   const shapeLabel=document.body.classList.contains('round-items')?'on':'';
 
   document.getElementById('hdr-right').innerHTML=`
-    <button class="btn bg bsm" onclick="goHub()">← Hub</button>
+    <button class="btn bg bsm" onclick="goHub()"><i data-lucide="arrow-left"></i> Hub</button>
     ${editing?`
       <div class="save-st"><div class="save-dot" id="save-dot"></div><span id="save-txt">Carregado</span></div>
       <div class="pills">
-        <button class="pill ${shapeLabel?'':'on'}" data-sh="square" onclick="toggleShape('square',this)">⬛</button>
-        <button class="pill ${shapeLabel?'on':''}" data-sh="round" onclick="toggleShape('round',this)">🔮</button>
+        <button class="pill ${shapeLabel?'':'on'}" data-sh="square" onclick="toggleShape('square',this)"><i data-lucide="square" style="width:13px;height:13px"></i></button>
+        <button class="pill ${shapeLabel?'on':''}" data-sh="round" onclick="toggleShape('round',this)"><i data-lucide="circle" style="width:13px;height:13px"></i></button>
       </div>
       <button class="btn bg bsm" id="toggle-names-btn" onclick="toggleNames()">
-        ${S.list.showNames?'👁 Nomes ON':'👁 Nomes OFF'}
+        <i data-lucide="${S.list.showNames?'eye':'eye-off'}"></i> Nomes: ${S.list.showNames?'ON':'OFF'}
       </button>
-      <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
-      <button class="btn bp bsm" onclick="handleSave()">💾 Salvar</button>
+      <button class="btn bg bsm" onclick="exportPNG()"><i data-lucide="image"></i> Exportar PNG</button>
+      <button class="btn bp bsm" onclick="handleSave()"><i data-lucide="save"></i> Salvar</button>
     `:`
-      <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
-      <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+      <button class="btn bg bsm" onclick="exportPNG()"><i data-lucide="image"></i> Exportar PNG</button>
+      <button class="btn bp bsm" onclick="promptEdit('${S.listId}')"><i data-lucide="edit-3"></i> Editar</button>
     `}
   `;
 
   const editorClass=editing?'editor editing-mode':'editor';
   const bannerHtml=editing?'':`
     <div class="view-banner">
-      <span>👁 Modo visualização — <strong>${esc(S.list.title)}</strong></span>
+      <span><i data-lucide="eye" style="margin-right:6px;color:var(--t2)"></i> Modo visualização — <strong>${esc(S.list.title)}</strong></span>
       <div style="display:flex;gap:6px">
-        <button class="btn bg bsm" onclick="exportPNG()">🖼️ Exportar PNG</button>
-        <button class="btn bp bsm" onclick="promptEdit('${S.listId}')">✏️ Editar</button>
+        <button class="btn bg bsm" onclick="exportPNG()"><i data-lucide="image"></i> Exportar PNG</button>
+        <button class="btn bp bsm" onclick="promptEdit('${S.listId}')"><i data-lucide="edit-3"></i> Editar</button>
       </div>
     </div>`;
 
@@ -622,10 +606,10 @@ function renderEditor(){
     <div class="ed-tb">
       <span class="ed-title">${esc(S.list.title)}</span>
       <div class="ed-sep"></div>
-      <button class="btn bg bsm" onclick="openTierModal()">＋ Tier</button>
-      <button class="btn bg bsm" onclick="resetTiers()">↺ Padrão</button>
+      <button class="btn bg bsm" onclick="openTierModal()"><i data-lucide="plus"></i> Tier</button>
+      <button class="btn bg bsm" onclick="resetTiers()"><i data-lucide="rotate-ccw"></i> Padrão</button>
       <div class="sp"></div>
-      <button class="btn bd bsm" onclick="returnAllToPool()">↩ Retornar tudo</button>
+      <button class="btn bd bsm" onclick="returnAllToPool()"><i data-lucide="undo"></i> Retornar tudo</button>
     </div>`:''}
     ${bannerHtml}
     <div class="ed-split">
@@ -635,23 +619,23 @@ function renderEditor(){
       <div class="pool-col ${editing?'':'view-mode'}">
         <div class="pool-hdr">
           <div class="pool-hdr-row">
-            <div class="pool-ttl">📦 Pool <span class="pool-badge" id="pool-cnt">0</span></div>
-            ${editing?`<button class="btn bd bsm bic" onclick="clearPool()" title="Limpar">🗑</button>`:''}
+            <div class="pool-ttl"><i data-lucide="package" style="color:var(--t2)"></i> Pool <span class="pool-badge" id="pool-cnt">0</span></div>
+            ${editing?`<button class="btn bd bsm bic" onclick="clearPool()" title="Limpar"><i data-lucide="trash-2" style="margin:0"></i></button>`:''}
           </div>
           ${editing?`
           <div class="upload-mini" id="upload-zone">
             <input type="file" id="file-input" multiple accept="image/*"/>
-            <span class="upload-mini-icon">🖼️</span>
+            <span class="upload-mini-icon"><i data-lucide="image" style="width:24px;height:24px;stroke-width:1.5"></i></span>
             <p><strong>Clique</strong> ou arraste imagens</p>
           </div>`:''}
         </div>
         <div class="pool-grid-wrap">
           <div id="pool-grid">
-            <div class="pool-empty" id="pool-empty"><span>📂</span><span>Sem imagens no pool</span></div>
+            <div class="pool-empty" id="pool-empty"><span><i data-lucide="folder" style="width:24px;height:24px;stroke-width:1.5;color:var(--t3)"></i></span><span>Sem imagens no pool</span></div>
           </div>
         </div>
         ${editing?`<div class="pool-footer">
-          <button class="btn bg bsm" onclick="returnAllToPool()">↩ Retornar tudo</button>
+          <button class="btn bg bsm" onclick="returnAllToPool()"><i data-lucide="undo"></i> Retornar tudo</button>
         </div>`:''}
       </div>
     </div>
@@ -661,6 +645,7 @@ function renderEditor(){
   renderPool();
   if(editing) initInteractions();
   updateSaveStatus();
+  refreshIcons();
 }
 
 // ════════════════════════════════════════════
@@ -1135,7 +1120,8 @@ function toggleNames(){
   S.list.showNames=on;
   document.body.classList.toggle('show-names',on);
   const btn=document.getElementById('toggle-names-btn');
-  if(btn)btn.textContent=on?'👁 Nomes ON':'👁 Nomes OFF';
+  if(btn)btn.innerHTML=`<i data-lucide="${on?'eye':'eye-off'}"></i> Nomes: ${on?'ON':'OFF'}`;
+  refreshIcons();
   markDirty();
 }
 
@@ -1369,7 +1355,7 @@ const MODAL_HTML={
   'modal-pw':`
   <div class="ov" id="modal-pw" onclick="if(event.target===this)closeModal('modal-pw')">
     <div class="modal modal-sm">
-      <h2>🔒 Senha da Tier List</h2>
+      <h2><i data-lucide="lock" style="margin-right:6px;color:var(--acc);vertical-align:-2px"></i> Senha da Tier List</h2>
       <p style="font-size:13px;color:var(--t2);margin-bottom:14px" id="pw-error"></p>
       <div class="fg">
         <label class="fl">Senha</label>
@@ -1385,7 +1371,7 @@ const MODAL_HTML={
   'modal-setpw':`
   <div class="ov" id="modal-setpw">
     <div class="modal modal-sm">
-      <h2>🔑 Definir Senha</h2>
+      <h2><i data-lucide="key" style="margin-right:6px;color:var(--acc);vertical-align:-2px"></i> Definir Senha</h2>
       <p style="font-size:13px;color:var(--t2);margin-bottom:14px">A senha protege a edição desta tier list. Anote-a!</p>
       <div class="fg">
         <label class="fl">Nova Senha</label>
@@ -1406,7 +1392,7 @@ const MODAL_HTML={
   'modal-create':`
   <div class="ov" id="modal-create" onclick="if(event.target===this)closeModal('modal-create')">
     <div class="modal">
-      <h2>🏆 Nova Tier List</h2>
+      <h2><i data-lucide="award" style="margin-right:6px;color:var(--acc);vertical-align:-2px"></i> Nova Tier List</h2>
       <div class="fg">
         <label class="fl">Título *</label>
         <input class="fi" type="text" id="create-title" placeholder="Ex: Filmes de 2024…" maxlength="60"/>
@@ -1462,6 +1448,7 @@ function showModal(id){
     el=document.getElementById(id);
   }
   el.classList.add('open');
+  refreshIcons();
   if(id==='modal-tier') renderRarityGrid();
   if(id==='modal-create') setTimeout(renderTmplPicker,0);
   if(id==='modal-pw'){
@@ -1549,6 +1536,7 @@ async function init(){
       document.getElementById('modals').insertAdjacentHTML('beforeend',MODAL_HTML[id]||'');
     }
   });
+  refreshIcons();
   handleRoute();
 }
 
