@@ -411,11 +411,6 @@ function renderHub(){
   const cards=filtered.length?filtered.map(l=>hubCard(l)).join(''):`<div class="hub-empty"><div class="ei"><i data-lucide="folder-open" style="width:40px;height:40px;stroke-width:1.5;color:var(--t3)"></i></div><p>Nenhuma tier list ainda.<br>Seja o primeiro!</p></div>`;
   document.getElementById('app').innerHTML=`
   <div class="hub-wrap">
-    <div class="hub-hero">
-      <h2><i data-lucide="layers" style="width:36px;height:36px;vertical-align:-6px;margin-right:10px;color:var(--t2)"></i>TiersList Hub</h2>
-      <p>Crie, compartilhe e compare tier lists com seus amigos</p>
-      <button class="btn bp" onclick="showCreateModal()" style="font-size:15px;padding:12px 28px"><i data-lucide="plus"></i> Criar Nova Tier List</button>
-    </div>
     <div class="hub-grid" id="hub-grid">${cards}</div>
   </div>`;
   refreshIcons();
